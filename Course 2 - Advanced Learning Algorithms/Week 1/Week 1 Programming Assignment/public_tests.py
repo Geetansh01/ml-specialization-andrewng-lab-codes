@@ -1,28 +1,61 @@
 # UNIT TESTS
 from tensorflow.keras.activations import sigmoid as tf_keras_sigmoid
 from tensorflow.keras.layers import Dense
-
 import numpy as np
 
+# This is the original test_c1, it was not working!
+# def test_c1(target):
+#     assert len(target.layers) == 3, \
+#         f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
+#     assert target.input.shape.as_list() == [None, 400], \
+#         f"Wrong input shape. Expected [None,  400] but got {target.input.shape.as_list()}"
+#     i = 0
+#     expected = [[Dense, [None, 25], tf_keras_sigmoid],
+#                 [Dense, [None, 15], tf_keras_sigmoid],
+#                 [Dense, [None, 1], tf_keras_sigmoid]]
+
+#     for layer in target.layers:
+#         assert type(layer) == expected[i][0], \
+#             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
+#         assert layer.output.shape.as_list() == expected[i][1], \
+#             f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+#         assert layer.activation == expected[i][2], \
+#             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
+#         i = i + 1
+
+#     print("\033[92mAll tests passed!")
+
+# Modified test_c1
 def test_c1(target):
+    # Check the number of layers
     assert len(target.layers) == 3, \
         f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
-    assert target.input.shape.as_list() == [None, 400], \
-        f"Wrong input shape. Expected [None,  400] but got {target.input.shape.as_list()}"
-    i = 0
-    expected = [[Dense, [None, 25], tf_keras_sigmoid],
-                [Dense, [None, 15], tf_keras_sigmoid],
-                [Dense, [None, 1], tf_keras_sigmoid]]
-
-    for layer in target.layers:
-        assert type(layer) == expected[i][0], \
+    
+    # Check the input shape
+    assert target.input_shape == (None, 400), \
+        f"Wrong input shape. Expected (None, 400) but got {target.input_shape}"
+    
+    # Define the expected structure for comparison
+    expected = [
+        [Dense, (None, 25), tf_keras_sigmoid],
+        [Dense, (None, 15), tf_keras_sigmoid],
+        [Dense, (None, 1), tf_keras_sigmoid]
+    ]
+    
+    # Verify each layer
+    for i, layer in enumerate(target.layers):
+        # Check the type of the layer
+        assert isinstance(layer, expected[i][0]), \
             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
-        assert layer.output.shape.as_list() == expected[i][1], \
-            f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+        
+        # Check the output shape
+        assert layer.output.shape == expected[i][1], \
+            f"Wrong output shape in layer {i}. Expected {expected[i][1]} but got {layer.output.shape}"
+        
+        # Check the activation function
         assert layer.activation == expected[i][2], \
             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
-        i = i + 1
-
+    
     print("\033[92mAll tests passed!")
     
 def test_c2(target):
