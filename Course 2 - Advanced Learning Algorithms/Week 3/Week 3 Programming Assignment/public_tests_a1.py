@@ -53,99 +53,286 @@ def test_eval_cat_err(target):
     assert type(res_tmp) != np.ndarray, f"The output must be an scalar but got {type(res_tmp)}"
     
     print("\033[92m All tests passed.")
+
+# This is the original model_test, it was not working   
+# def model_test(target, classes, input_size):
+#     target.build(input_shape=(None,input_size))
+#     expected_lr = 0.01
     
+#     assert len(target.layers) == 3, \
+#         f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
+#     assert target.input.shape.as_list() == [None, input_size], \
+#         f"Wrong input shape. Expected [None,  {input_size}] but got {target.input.shape.as_list()}"
+#     i = 0
+#     expected = [[Dense, [None, 120], relu],
+#                 [Dense, [None, 40], relu],
+#                 [Dense, [None, classes], linear]]
+
+#     for layer in target.layers:
+#         assert type(layer) == expected[i][0], \
+#             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
+#         assert layer.output.shape.as_list() == expected[i][1], \
+#             f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+#         assert layer.activation == expected[i][2], \
+#             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
+#         assert layer.kernel_regularizer == None, "You must not specify any regularizer for any layer"
+#         i = i + 1
+        
+#     assert type(target.loss)==SparseCategoricalCrossentropy, f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {target.loss}"
+#     assert type(target.optimizer)==Adam, f"Wrong loss function. Expected {Adam}, but got {target.optimizer}"
+#     lr = target.optimizer.learning_rate.numpy()
+#     assert np.isclose(lr, expected_lr, atol=1e-8), f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
+#     assert target.loss.get_config()['from_logits'], f"Set from_logits=True in loss function"
+
+#     print("\033[92mAll tests passed!")
+
+# New model_test
 def model_test(target, classes, input_size):
-    target.build(input_shape=(None,input_size))
-    expected_lr = 0.01
-    
+    # Build the model to ensure input shape is properly initialized
+    target.build(input_shape=(None, input_size))
+    expected_lr = 0.01  # Expected learning rate
+
+    # Check the number of layers
     assert len(target.layers) == 3, \
         f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
-    assert target.input.shape.as_list() == [None, input_size], \
-        f"Wrong input shape. Expected [None,  {input_size}] but got {target.input.shape.as_list()}"
-    i = 0
-    expected = [[Dense, [None, 120], relu],
-                [Dense, [None, 40], relu],
-                [Dense, [None, classes], linear]]
+    
+    # Check the input shape
+    assert target.input_shape == (None, input_size), \
+        f"Wrong input shape. Expected (None, {input_size}) but got {target.input_shape}"
 
-    for layer in target.layers:
-        assert type(layer) == expected[i][0], \
+    # Define the expected structure for comparison
+    expected = [
+        [Dense, (None, 120), relu],
+        [Dense, (None, 40), relu],
+        [Dense, (None, classes), linear]
+    ]
+
+    # Verify each layer
+    for i, layer in enumerate(target.layers):
+        # Check the type of the layer
+        assert isinstance(layer, expected[i][0]), \
             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
-        assert layer.output.shape.as_list() == expected[i][1], \
-            f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+        
+        # Check the output shape
+        assert layer.output.shape == expected[i][1], \
+            f"Wrong output shape in layer {i}. Expected {expected[i][1]} but got {layer.output.shape}"
+        
+        # Check the activation function
         assert layer.activation == expected[i][2], \
             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
-        assert layer.kernel_regularizer == None, "You must not specify any regularizer for any layer"
-        i = i + 1
         
-    assert type(target.loss)==SparseCategoricalCrossentropy, f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {target.loss}"
-    assert type(target.optimizer)==Adam, f"Wrong loss function. Expected {Adam}, but got {target.optimizer}"
+        # Ensure no regularizer is applied
+        assert layer.kernel_regularizer is None, \
+            "You must not specify any regularizer for any layer"
+
+    # Check the loss function
+    assert isinstance(target.loss, SparseCategoricalCrossentropy), \
+        f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {type(target.loss)}"
+
+    # Check the optimizer type
+    assert isinstance(target.optimizer, Adam), \
+        f"Wrong optimizer. Expected {Adam}, but got {type(target.optimizer)}"
+
+    # Check the learning rate
     lr = target.optimizer.learning_rate.numpy()
-    assert np.isclose(lr, expected_lr, atol=1e-8), f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
-    assert target.loss.get_config()['from_logits'], f"Set from_logits=True in loss function"
+    assert np.isclose(lr, expected_lr, atol=1e-8), \
+        f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
+
+    # Ensure 'from_logits' is set to True in the loss function
+    assert target.loss.get_config()['from_logits'], \
+        "Set from_logits=True in loss function"
 
     print("\033[92mAll tests passed!")
     
+# This is the original model_s_test, it was not working 
+# def model_s_test(target, classes, input_size):
+#     target.build(input_shape=(None,input_size))
+#     expected_lr = 0.01
+    
+#     assert len(target.layers) == 2, \
+#         f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
+#     assert target.input.shape.as_list() == [None, input_size], \
+#         f"Wrong input shape. Expected [None,  {input_size}] but got {target.input.shape.as_list()}"
+#     i = 0
+#     expected = [[Dense, [None, 6], relu],
+#                 [Dense, [None, classes], linear]]
+
+#     for layer in target.layers:
+#         assert type(layer) == expected[i][0], \
+#             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
+#         assert layer.output.shape.as_list() == expected[i][1], \
+#             f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+#         assert layer.activation == expected[i][2], \
+#             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
+#         assert layer.kernel_regularizer == None, "You must not specify any regularizer any layer"
+#         i = i + 1
+        
+#     assert type(target.loss)==SparseCategoricalCrossentropy, f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {target.loss}"
+#     assert type(target.optimizer)==Adam, f"Wrong loss function. Expected {Adam}, but got {target.optimizer}"
+#     lr = target.optimizer.learning_rate.numpy()
+#     assert np.isclose(lr, expected_lr, atol=1e-8), f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
+#     assert target.loss.get_config()['from_logits'], f"Set from_logits=True in loss function"
+
+#     print("\033[92mAll tests passed!")
+
+# New model_s_test
 def model_s_test(target, classes, input_size):
-    target.build(input_shape=(None,input_size))
-    expected_lr = 0.01
-    
-    assert len(target.layers) == 2, \
-        f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
-    assert target.input.shape.as_list() == [None, input_size], \
-        f"Wrong input shape. Expected [None,  {input_size}] but got {target.input.shape.as_list()}"
-    i = 0
-    expected = [[Dense, [None, 6], relu],
-                [Dense, [None, classes], linear]]
+    # Run dummy data through the model to initialize tensors properly
+    dummy_input = tf.random.normal((1, input_size))
+    target(dummy_input)
 
-    for layer in target.layers:
-        assert type(layer) == expected[i][0], \
+    expected_lr = 0.01  # Expected learning rate
+
+    # Check the number of layers
+    assert len(target.layers) == 2, \
+        f"Wrong number of layers. Expected 2 but got {len(target.layers)}"
+
+    # Check the input shape
+    assert target.input_shape == (None, input_size), \
+        f"Wrong input shape. Expected (None, {input_size}) but got {target.input_shape}"
+
+    # Define the expected structure for comparison
+    expected = [
+        [Dense, (None, 6), relu],
+        [Dense, (None, classes), linear]
+    ]
+
+    # Verify each layer
+    for i, layer in enumerate(target.layers):
+        # Check the type of the layer
+        assert isinstance(layer, expected[i][0]), \
             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
-        assert layer.output.shape.as_list() == expected[i][1], \
-            f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+
+        # Check the output shape
+        assert layer.output.shape == expected[i][1], \
+            f"Wrong output shape in layer {i}. Expected {expected[i][1]} but got {layer.output.shape}"
+
+        # Check the activation function
         assert layer.activation == expected[i][2], \
             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
-        assert layer.kernel_regularizer == None, "You must not specify any regularizer any layer"
-        i = i + 1
-        
-    assert type(target.loss)==SparseCategoricalCrossentropy, f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {target.loss}"
-    assert type(target.optimizer)==Adam, f"Wrong loss function. Expected {Adam}, but got {target.optimizer}"
+
+        # Ensure no regularizer is applied
+        assert layer.kernel_regularizer is None, \
+            "You must not specify any regularizer for any layer"
+
+    # Check the loss function
+    assert isinstance(target.loss, SparseCategoricalCrossentropy), \
+        f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {type(target.loss)}"
+
+    # Check the optimizer type
+    assert isinstance(target.optimizer, Adam), \
+        f"Wrong optimizer. Expected {Adam}, but got {type(target.optimizer)}"
+
+    # Check the learning rate
     lr = target.optimizer.learning_rate.numpy()
-    assert np.isclose(lr, expected_lr, atol=1e-8), f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
-    assert target.loss.get_config()['from_logits'], f"Set from_logits=True in loss function"
+    assert np.isclose(lr, expected_lr, atol=1e-8), \
+        f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
+
+    # Ensure 'from_logits' is set to True in the loss function
+    assert target.loss.get_config()['from_logits'], \
+        "Set from_logits=True in loss function"
 
     print("\033[92mAll tests passed!")
-    
+
+# This is the original model_r_test, it was not working
+# def model_r_test(target, classes, input_size):
+#     target.build(input_shape=(None,input_size))
+#     expected_lr = 0.01
+#     print("ddd")
+#     assert len(target.layers) == 3, \
+#         f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
+#     assert target.input.shape.as_list() == [None, input_size], \
+#         f"Wrong input shape. Expected [None,  {input_size}] but got {target.input.shape.as_list()}"
+#     i = 0
+#     expected = [[Dense, [None, 120], relu, (tf.keras.regularizers.l2, 0.1)],
+#                 [Dense, [None, 40], relu, (tf.keras.regularizers.l2, 0.1)],
+#                 [Dense, [None, classes], linear, None]]
+
+#     for layer in target.layers:
+#         assert type(layer) == expected[i][0], \
+#             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
+#         assert layer.output.shape.as_list() == expected[i][1], \
+#             f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+#         assert layer.activation == expected[i][2], \
+#             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
+#         if not (expected[i][3] == None):
+#             assert type(layer.kernel_regularizer) == expected[i][3][0], f"Wrong regularizer. Expected L2 regularizer but got {type(layer.kernel_regularizer)}"
+#             assert np.isclose(layer.kernel_regularizer.l2,  expected[i][3][1]), f"Wrong regularization factor. Expected {expected[i][3][1]}, but got {layer.kernel_regularizer.l2}"
+#         else:
+#             assert layer.kernel_regularizer == None, "You must not specify any regularizer for the 3th layer"
+#         i = i + 1
+        
+#     assert type(target.loss)==SparseCategoricalCrossentropy, f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {target.loss}"
+#     assert type(target.optimizer)==Adam, f"Wrong loss function. Expected {Adam}, but got {target.optimizer}"
+#     lr = target.optimizer.learning_rate.numpy()
+#     assert np.isclose(lr, expected_lr, atol=1e-8), f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
+#     assert target.loss.get_config()['from_logits'], f"Set from_logits=True in loss function"
+
+#     print("\033[92mAll tests passed!")
+
+# New model_r_test
 def model_r_test(target, classes, input_size):
-    target.build(input_shape=(None,input_size))
-    expected_lr = 0.01
-    print("ddd")
+    # Run dummy data through the model to initialize tensors properly
+    dummy_input = tf.random.normal((1, input_size))
+    target(dummy_input)
+
+    expected_lr = 0.01  # Expected learning rate
+
+    # Check the number of layers
     assert len(target.layers) == 3, \
         f"Wrong number of layers. Expected 3 but got {len(target.layers)}"
-    assert target.input.shape.as_list() == [None, input_size], \
-        f"Wrong input shape. Expected [None,  {input_size}] but got {target.input.shape.as_list()}"
-    i = 0
-    expected = [[Dense, [None, 120], relu, (tf.keras.regularizers.l2, 0.1)],
-                [Dense, [None, 40], relu, (tf.keras.regularizers.l2, 0.1)],
-                [Dense, [None, classes], linear, None]]
 
-    for layer in target.layers:
-        assert type(layer) == expected[i][0], \
+    # Check the input shape
+    assert target.input_shape == (None, input_size), \
+        f"Wrong input shape. Expected (None, {input_size}) but got {target.input_shape}"
+
+    # Define the expected structure for comparison
+    expected = [
+        [Dense, (None, 120), relu, (tf.keras.regularizers.l2, 0.1)],
+        [Dense, (None, 40), relu, (tf.keras.regularizers.l2, 0.1)],
+        [Dense, (None, classes), linear, None]
+    ]
+
+    # Verify each layer
+    for i, layer in enumerate(target.layers):
+        # Check the type of the layer
+        assert isinstance(layer, expected[i][0]), \
             f"Wrong type in layer {i}. Expected {expected[i][0]} but got {type(layer)}"
-        assert layer.output.shape.as_list() == expected[i][1], \
-            f"Wrong number of units in layer {i}. Expected {expected[i][1]} but got {layer.output.shape.as_list()}"
+
+        # Check the output shape
+        assert layer.output.shape == expected[i][1], \
+            f"Wrong output shape in layer {i}. Expected {expected[i][1]} but got {layer.output.shape}"
+
+        # Check the activation function
         assert layer.activation == expected[i][2], \
             f"Wrong activation in layer {i}. Expected {expected[i][2]} but got {layer.activation}"
-        if not (expected[i][3] == None):
-            assert type(layer.kernel_regularizer) == expected[i][3][0], f"Wrong regularizer. Expected L2 regularizer but got {type(layer.kernel_regularizer)}"
-            assert np.isclose(layer.kernel_regularizer.l2,  expected[i][3][1]), f"Wrong regularization factor. Expected {expected[i][3][1]}, but got {layer.kernel_regularizer.l2}"
+
+        # Check the regularizer
+        if expected[i][3] is not None:
+            reg_type, reg_value = expected[i][3]
+            assert isinstance(layer.kernel_regularizer, reg_type), \
+                f"Wrong regularizer. Expected {reg_type} but got {type(layer.kernel_regularizer)}"
+            assert np.isclose(layer.kernel_regularizer.l2, reg_value, atol=1e-8), \
+                f"Wrong regularization factor. Expected {reg_value}, but got {layer.kernel_regularizer.l2}"
         else:
-            assert layer.kernel_regularizer == None, "You must not specify any regularizer for the 3th layer"
-        i = i + 1
-        
-    assert type(target.loss)==SparseCategoricalCrossentropy, f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {target.loss}"
-    assert type(target.optimizer)==Adam, f"Wrong loss function. Expected {Adam}, but got {target.optimizer}"
+            assert layer.kernel_regularizer is None, \
+                f"You must not specify any regularizer for layer {i}"
+
+    # Check the loss function
+    assert isinstance(target.loss, SparseCategoricalCrossentropy), \
+        f"Wrong loss function. Expected {SparseCategoricalCrossentropy}, but got {type(target.loss)}"
+
+    # Check the optimizer type
+    assert isinstance(target.optimizer, Adam), \
+        f"Wrong optimizer. Expected {Adam}, but got {type(target.optimizer)}"
+
+    # Check the learning rate
     lr = target.optimizer.learning_rate.numpy()
-    assert np.isclose(lr, expected_lr, atol=1e-8), f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
-    assert target.loss.get_config()['from_logits'], f"Set from_logits=True in loss function"
+    assert np.isclose(lr, expected_lr, atol=1e-8), \
+        f"Wrong learning rate. Expected {expected_lr}, but got {lr}"
+
+    # Ensure 'from_logits' is set to True in the loss function
+    assert target.loss.get_config()['from_logits'], \
+        "Set from_logits=True in loss function"
 
     print("\033[92mAll tests passed!")
